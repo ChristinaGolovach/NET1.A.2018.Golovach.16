@@ -63,6 +63,7 @@ namespace BinarySearchTreeLogic
            return ContainsCore(root, item);
         }
 
+        #region Travels
         public IEnumerable<T> TravelInorder()
         {
             CheckNullRoot();
@@ -71,24 +72,82 @@ namespace BinarySearchTreeLogic
 
             IEnumerable<T> TravelInorder(Node<T> node)
             {
-                if ()
+                if (node.leftChild != null)
                 {
-
+                    foreach (var item in TravelInorder(node.leftChild))
+                    {
+                        yield return item;
+                    }                        
                 }
 
                 yield return node.Value;
+
+                if (node.rightChild != null)
+                {
+                    foreach (var item in TravelInorder(node.rightChild))
+                    {
+                        yield return item;
+                    }                        
+                }
             }
         }
 
         public IEnumerable<T> TravelPreorder()
         {
+            CheckNullRoot();
 
+            return TravelPreorder(root);
+
+            IEnumerable<T> TravelPreorder(Node<T> node)
+            {
+                yield return node.Value;
+
+                if (node.leftChild != null)
+                {
+                    foreach (var item in TravelPreorder(node.leftChild))
+                    {
+                        yield return item;
+                    }
+                }                
+
+                if (node.rightChild != null)
+                {
+                    foreach (var item in TravelPreorder(node.rightChild))
+                    {
+                        yield return item;
+                    }
+                }
+            }
         }
 
         public IEnumerable<T> TravelPostorder()
         {
+            CheckNullRoot();
 
+            return TravelPostorder(root);
+
+            IEnumerable<T> TravelPostorder(Node<T> node)
+            {            
+                if (node.leftChild != null)
+                {
+                    foreach (var item in TravelPostorder(node.leftChild))
+                    {
+                        yield return item;
+                    }
+                }
+
+                if (node.rightChild != null)
+                {
+                    foreach (var item in TravelPostorder(node.rightChild))
+                    {
+                        yield return item;
+                    }
+                }
+
+                yield return node.Value;
+            }
         }
+        #endregion Travels
 
         public IEnumerator<T> GetEnumerator() => TravelInorder().GetEnumerator();
 
