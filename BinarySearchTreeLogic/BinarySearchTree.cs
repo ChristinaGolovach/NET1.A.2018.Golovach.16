@@ -64,6 +64,18 @@ namespace BinarySearchTreeLogic
         }
 
         #region Travels
+
+        //private IEnumerable<T> GenericTravel(Node<T> node, Func<Node<T>, Node<T>> child, Func<Node<T>, IEnumerable<T>> travelMethod)
+        //{
+        //    if (child(node) != null)
+        //    {
+        //        foreach (var item in travelMethod(child(node)))
+        //        {
+        //            yield return item;
+        //        }
+        //    }
+        //}
+
         public IEnumerable<T> TravelInorder()
         {
             CheckNullRoot();
@@ -77,9 +89,9 @@ namespace BinarySearchTreeLogic
                     foreach (var item in TravelInorder(node.leftChild))
                     {
                         yield return item;
-                    }                        
+                    }
                 }
-
+                
                 yield return node.Value;
 
                 if (node.rightChild != null)
@@ -87,7 +99,7 @@ namespace BinarySearchTreeLogic
                     foreach (var item in TravelInorder(node.rightChild))
                     {
                         yield return item;
-                    }                        
+                    }
                 }
             }
         }
