@@ -1,22 +1,29 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BinarySearchTreeLogic
 {
-    public class BinarySearchTree<T>: IEnumerable<T>
+    /// <summary>
+    /// Class for work with binary tree.
+    /// </summary>
+    /// <typeparam name="T">
+    /// Any type.
+    /// </typeparam>
+    public class BinarySearchTree<T> : IEnumerable<T>
     {
         private IComparer<T> comparer;
         private Node<T> root;
         private int count;
 
-        public int Count { get => count; }
-
         #region Constructor
-
+        /// <summary>
+        /// Constructor of binary tree.
+        /// Return instance of tree with the default comparer.
+        /// </summary>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <typeparam name="T"> does not implement IComparable<<typeparam name="T">> interface.
+        /// </exception>
         public BinarySearchTree()
         {
             if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)))
@@ -27,16 +34,50 @@ namespace BinarySearchTreeLogic
             comparer = Comparer<T>.Default;
         }
 
+        /// <summary>
+        /// Constructor of binary tree.
+        /// Return instance of tree with the default comparer.
+        /// </summary>
+        /// <param name="collection">
+        /// Collection to initialize tree elements.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="collection"/> is null.
+        /// </exception>
         public BinarySearchTree(IEnumerable<T> collection) : this()
         {
             InitializeWithCollection(collection);
         }
 
+        /// <summary>
+        /// Constructor of binary tree.
+        /// Return instance of tree with the given comparer.
+        /// </summary>
+        /// <param name="comparer">
+        /// Type that implement IComparer<T>.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="comparer"/> is null.
+        /// </exception>
         public BinarySearchTree(IComparer<T> comparer)
         {
             this.comparer = comparer = comparer ?? throw new ArgumentNullException($"The {nameof(comparer)} can not be null.");
         }
 
+        /// <summary>
+        /// Constructor of binary tree.
+        /// </summary>
+        /// <param name="collection">
+        /// Collection to initialize tree elements.
+        /// </param>
+        /// <param name="comparer">
+        /// Type that implement IComparer<T>.
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="comparer"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="collection"/> is null.
+        /// </exception>
         public BinarySearchTree(IEnumerable<T> collection, IComparer<T> comparer) : this(comparer) 
         {
             InitializeWithCollection(collection);
@@ -44,6 +85,20 @@ namespace BinarySearchTreeLogic
 
         #endregion Constructor
 
+        /// <summary>
+        /// Return count elements in tree.
+        /// </summary>
+        public int Count { get => count; }
+
+        /// <summary>
+        /// Add element in tree.
+        /// </summary>
+        /// <param name="item">
+        /// Item for the inserting into tree.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="item"/> is null and type of <typeparam name="T"> is value type.
+        /// </exception>
         public void Add(T item)
         {
             if (!typeof(T).IsValueType)
@@ -58,6 +113,15 @@ namespace BinarySearchTreeLogic
             count++;
         }
 
+        /// <summary>
+        /// Checks for an item in the tree according to Equality protocol.
+        /// </summary>
+        /// <param name="item">
+        /// The item for the checking.
+        /// </param>
+        /// <returns>
+        /// True - if item exists in tree, otherwise  - false.
+        /// </returns>
         public bool Contains(T item)
         {
            return ContainsCore(root, item);
@@ -65,17 +129,12 @@ namespace BinarySearchTreeLogic
 
         #region Travels
 
-        //private IEnumerable<T> GenericTravel(Node<T> node, Func<Node<T>, Node<T>> child, Func<Node<T>, IEnumerable<T>> travelMethod)
-        //{
-        //    if (child(node) != null)
-        //    {
-        //        foreach (var item in travelMethod(child(node)))
-        //        {
-        //            yield return item;
-        //        }
-        //    }
-        //}
-
+        /// <summary>
+        /// Performs a walk through the tree in inorder type. 
+        /// </summary>
+        /// <returns>
+        /// Items collection of tree.
+        /// </returns>
         public IEnumerable<T> TravelInorder()
         {
             CheckNullRoot();
@@ -84,9 +143,9 @@ namespace BinarySearchTreeLogic
 
             IEnumerable<T> TravelInorder(Node<T> node)
             {
-                if (node.leftChild != null)
+                if (node.LeftChild != null)
                 {
-                    foreach (var item in TravelInorder(node.leftChild))
+                    foreach (var item in TravelInorder(node.LeftChild))
                     {
                         yield return item;
                     }
@@ -94,9 +153,9 @@ namespace BinarySearchTreeLogic
                 
                 yield return node.Value;
 
-                if (node.rightChild != null)
+                if (node.RightChild != null)
                 {
-                    foreach (var item in TravelInorder(node.rightChild))
+                    foreach (var item in TravelInorder(node.RightChild))
                     {
                         yield return item;
                     }
@@ -104,6 +163,12 @@ namespace BinarySearchTreeLogic
             }
         }
 
+        /// <summary>
+        /// Performs a walk through the tree in preorder type. 
+        /// </summary>
+        /// <returns>
+        /// Items collection of tree.
+        /// </returns>
         public IEnumerable<T> TravelPreorder()
         {
             CheckNullRoot();
@@ -114,17 +179,17 @@ namespace BinarySearchTreeLogic
             {
                 yield return node.Value;
 
-                if (node.leftChild != null)
+                if (node.LeftChild != null)
                 {
-                    foreach (var item in TravelPreorder(node.leftChild))
+                    foreach (var item in TravelPreorder(node.LeftChild))
                     {
                         yield return item;
                     }
                 }                
 
-                if (node.rightChild != null)
+                if (node.RightChild != null)
                 {
-                    foreach (var item in TravelPreorder(node.rightChild))
+                    foreach (var item in TravelPreorder(node.RightChild))
                     {
                         yield return item;
                     }
@@ -132,6 +197,12 @@ namespace BinarySearchTreeLogic
             }
         }
 
+        /// <summary>
+        /// Performs a walk through the tree in postorder type. 
+        /// </summary>
+        /// <returns>
+        /// Items collection of tree.
+        /// </returns>
         public IEnumerable<T> TravelPostorder()
         {
             CheckNullRoot();
@@ -140,17 +211,17 @@ namespace BinarySearchTreeLogic
 
             IEnumerable<T> TravelPostorder(Node<T> node)
             {            
-                if (node.leftChild != null)
+                if (node.LeftChild != null)
                 {
-                    foreach (var item in TravelPostorder(node.leftChild))
+                    foreach (var item in TravelPostorder(node.LeftChild))
                     {
                         yield return item;
                     }
                 }
 
-                if (node.rightChild != null)
+                if (node.RightChild != null)
                 {
-                    foreach (var item in TravelPostorder(node.rightChild))
+                    foreach (var item in TravelPostorder(node.RightChild))
                     {
                         yield return item;
                     }
@@ -161,9 +232,28 @@ namespace BinarySearchTreeLogic
         }
         #endregion Travels
 
+        /// <summary>
+        /// Returns an iterator.
+        /// </summary>
+        /// <returns>
+        /// Iterator of binary tree.
+        /// </returns>
         public IEnumerator<T> GetEnumerator() => TravelInorder().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+
+        // TODO ASK
+        // private IEnumerable<T> GenericTravel(Node<T> node, Func<Node<T>, Node<T>> child, Func<Node<T>, IEnumerable<T>> travelMethod)
+        // {
+        //    if (child(node) != null)
+        //    {
+        //        foreach (var item in travelMethod(child(node)))
+        //        {
+        //            yield return item;
+        //        }
+        //    }
+        // }
 
         private Node<T> AddCore(Node<T> node, T item)
         {            
@@ -176,12 +266,13 @@ namespace BinarySearchTreeLogic
 
             if (compareResult > 0)
             {
-                node.leftChild = AddCore(node.leftChild, item);
+                node.LeftChild = AddCore(node.LeftChild, item);
             }
             else if (compareResult < 0)
             {
-                node.rightChild = AddCore(node.rightChild, item);
+                node.RightChild = AddCore(node.RightChild, item);
             }
+
             return node;
         }
 
@@ -190,17 +281,18 @@ namespace BinarySearchTreeLogic
             Node<T> current = node;
             while (comparer.Compare(current.Value, item) != 0)
             {
-                if(ReferenceEquals(current, null))
+                if (ReferenceEquals(current, null))
                 {
                     return false;
                 }
+
                 if (comparer.Compare(current.Value, item) > 0)
                 {
-                    current = current.leftChild;
+                    current = current.LeftChild;
                 }
                 else
                 {
-                    current = current.rightChild;
+                    current = current.RightChild;
                 }
             }
 

@@ -1,16 +1,39 @@
 ﻿namespace BinarySearchTreeLogic
 {
-    class Node<T>
+    /// <summary>
+    /// Class for work with node of binary tree.
+    /// </summary>
+    /// <typeparam name="T">
+    /// Any type.
+    /// </typeparam>
+    internal class Node<T>
     {
-        private T value;
+        private T value;       
 
-        public Node<T> leftChild { get; set; }
-        public Node<T> rightChild { get; set; }
-        public T Value { get => value; }
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="value">
+        /// Value for the node.
+        /// </param>
         public Node(T value)
         {
             this.value = value;
         }
+
+        /// <summary>
+        /// Return left child of node.
+        /// </summary>
+        public Node<T> LeftChild { get; set; }
+
+        /// <summary>
+        /// Return right child of node.
+        /// </summary>
+        public Node<T> RightChild { get; set; }
+
+        /// <summary>
+        /// Return value of node.
+        /// </summary>
+        public T Value { get => value; }
     }
 }
