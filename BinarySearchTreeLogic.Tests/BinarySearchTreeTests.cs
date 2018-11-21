@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BinarySearchTreeLogic.Tests.Classes;
 using NUnit.Framework;
@@ -8,6 +9,7 @@ namespace BinarySearchTreeLogic.Tests
     [TestFixture]
     public class BinarySearchTreeTests
     {
+        // TODO test if in foreach add element in tree.
         #region Create tree
         [TestCase(new int[] { 8, 3, 1, 6, 10, 14, 7, 13 }, 8)]
         public void Constructor_CreateBinnaryTreeWithBCLTypeInt_InstanceIsNotNuul(int[] collection, int expectedResult)
@@ -110,7 +112,7 @@ namespace BinarySearchTreeLogic.Tests
             binarySearchTree.Add(new Book { Price = price, Name = name });
 
             // Assert
-            Assert.IsTrue(!binarySearchTree.Contains(new Book { Price = price, Name = name }));
+            Assert.IsTrue(binarySearchTree.Contains(new Book { Price = price, Name = name }));
         }
         
         [TestCase(2, 2)]
@@ -175,8 +177,49 @@ namespace BinarySearchTreeLogic.Tests
             CollectionAssert.AreEqual(result, inorderArray);
         }
 
-
         #endregion Travels tests
+        
+        [Test]
+        public void GetEnumerator_NotAvailableChangeTreeInForEach()
+        {
+            BinarySearchTree<Book> bookTree = new BinarySearchTree<Book>(CreateBookArrayWIthCountTree());
+
+            Assert.Throws<ArgumentException>(() => 
+            {
+                foreach (Book book in bookTree)
+                {                   
+                    bookTree.Add(new Book() { Name = "new", Price = 123 });
+                }
+            });
+        }
+
+        [Test]
+        public void PreOrderTravel_NotAvailableChangeTreeInForEach()
+        {
+            BinarySearchTree<Book> bookTree = new BinarySearchTree<Book>(CreateBookArrayWIthCountTree());
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                foreach (Book book in bookTree.TravelPreorder())
+                {
+                    bookTree.Add(new Book() { Name = "new", Price = 123 });
+                }
+            });
+        }
+
+        [Test]
+        public void PostOrderTravel_NotAvailableChangeTreeInForEach()
+        {
+            BinarySearchTree<Book> bookTree = new BinarySearchTree<Book>(CreateBookArrayWIthCountTree());
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                foreach (Book book in bookTree.TravelPostorder())
+                {
+                    bookTree.Add(new Book() { Name = "new", Price = 123 });
+                }
+            });
+        }
 
         private static Book[] CreateBookArrayWIthCountTree()
         {

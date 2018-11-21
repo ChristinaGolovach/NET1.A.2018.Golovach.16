@@ -2,7 +2,7 @@
 
 namespace BinarySearchTreeLogic.Tests.Classes
 {
-    public class Book : IComparable<Book>
+    public class Book : IComparable<Book>, IComparable
     {
         public int Price { get; set; }
         public string Name { get; set; }
@@ -18,6 +18,11 @@ namespace BinarySearchTreeLogic.Tests.Classes
         public int CompareTo(Book other)
         {
             return Price.CompareTo(other.Price);
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            return CompareTo(obj as Book);
         }
     }
 }
