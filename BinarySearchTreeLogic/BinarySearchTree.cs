@@ -10,25 +10,31 @@ namespace BinarySearchTreeLogic
     /// <typeparam name="T">
     /// Any type.
     /// </typeparam>
+    /// IsReadOnlyCollection
+    /// TODO можно добавіть ICollection<T> тк большинство методов сопадает с интерфейсом реализует IEnumerable
     public class BinarySearchTree<T> : IEnumerable<T>
     {
         private IComparer<T> comparer;
         private Node<T> root;
         private int count;
+        private int version;
 
         #region Constructor
         /// <summary>
         /// Constructor of binary tree.
         /// Return instance of tree with the default comparer.
         /// </summary>
-        /// <exception cref="ArgumentException">
-        /// Thrown when <typeparam name="T"> does not implement IComparable<<typeparam name="T">> interface.
-        /// </exception>
+        /// <exception cref="ArgumentException"> The <typeparam name="T"> does not implement IComparable<<typeparam name="T">> interface.</exception>
+        /// <exception cref="ArgumentException"> The <typeparam name="T"> does not implement IComparable interface.
         public BinarySearchTree()
         {
             if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)))
             {
                 throw new ArgumentException($"The {typeof(T)} must immplement IComparable<{typeof(T)}> interface.");
+            }
+            if (!typeof(IComparable).IsAssignableFrom(typeof(T)))
+            {
+                throw new ArgumentException($"The {typeof(T)} must immplement IComparable interface.");
             }
 
             comparer = Comparer<T>.Default;
@@ -111,6 +117,7 @@ namespace BinarySearchTreeLogic
             
             root = AddCore(root, item);
             count++;
+            version++;
         }
 
         /// <summary>
@@ -135,32 +142,10 @@ namespace BinarySearchTreeLogic
         /// <returns>
         /// Items collection of tree.
         /// </returns>
+        /// <exception cref="ArgumentException">When try chnage tree in foreach loop.</exception>
         public IEnumerable<T> TravelInorder()
         {
-            CheckNullRoot();
-
-            return TravelInorder(root);
-
-            IEnumerable<T> TravelInorder(Node<T> node)
-            {
-                if (node.LeftChild != null)
-                {
-                    foreach (var item in TravelInorder(node.LeftChild))
-                    {
-                        yield return item;
-                    }
-                }
-                
-                yield return node.Value;
-
-                if (node.RightChild != null)
-                {
-                    foreach (var item in TravelInorder(node.RightChild))
-                    {
-                        yield return item;
-                    }
-                }
-            }
+            return TravelInorder(version);
         }
 
         /// <summary>
@@ -169,32 +154,10 @@ namespace BinarySearchTreeLogic
         /// <returns>
         /// Items collection of tree.
         /// </returns>
+        /// <exception cref="ArgumentException">When try chnage tree in foreach loop.</exception>
         public IEnumerable<T> TravelPreorder()
         {
-            CheckNullRoot();
-
-            return TravelPreorder(root);
-
-            IEnumerable<T> TravelPreorder(Node<T> node)
-            {
-                yield return node.Value;
-
-                if (node.LeftChild != null)
-                {
-                    foreach (var item in TravelPreorder(node.LeftChild))
-                    {
-                        yield return item;
-                    }
-                }                
-
-                if (node.RightChild != null)
-                {
-                    foreach (var item in TravelPreorder(node.RightChild))
-                    {
-                        yield return item;
-                    }
-                }
-            }
+            return TravelPreorder(version);
         }
 
         /// <summary>
@@ -203,9 +166,89 @@ namespace BinarySearchTreeLogic
         /// <returns>
         /// Items collection of tree.
         /// </returns>
+        /// <exception cref="ArgumentException">When try chnage tree in foreach loop.</exception>
         public IEnumerable<T> TravelPostorder()
         {
+            return TravelPostorder(version);
+        }
+
+        private IEnumerable<T> TravelInorder(int inputVersion)
+        {
             CheckNullRoot();
+
+            int travelVersion = inputVersion;    
+
+            return TravelInorder(root);
+
+            IEnumerable<T> TravelInorder(Node<T> node)
+            {              
+                if (node.LeftChild != null)
+                {
+                    foreach (var item in TravelInorder(node.LeftChild))
+                    {
+                        CheckTreeVersion(travelVersion);
+
+                        yield return item;
+                    }
+                }
+
+                CheckTreeVersion(travelVersion);
+
+                yield return node.Value;
+
+                if (node.RightChild != null)
+                {
+                    foreach (var item in TravelInorder(node.RightChild))
+                    {
+                        CheckTreeVersion(travelVersion);
+
+                        yield return item;
+                    }
+                }
+            }
+        }       
+
+        private IEnumerable<T> TravelPreorder(int inputVersion)
+        {
+            CheckNullRoot();
+
+            int travelVersion = inputVersion;
+
+            return TravelPreorder(root);
+
+            IEnumerable<T> TravelPreorder(Node<T> node)
+            {
+                CheckTreeVersion(travelVersion); 
+
+                yield return node.Value;
+
+                if (node.LeftChild != null)
+                {
+                    foreach (var item in TravelPreorder(node.LeftChild))
+                    {
+                        CheckTreeVersion(travelVersion); 
+
+                        yield return item;
+                    }
+                }                
+
+                if (node.RightChild != null)
+                {
+                    foreach (var item in TravelPreorder(node.RightChild))
+                    {
+                        CheckTreeVersion(travelVersion);
+
+                        yield return item;
+                    }
+                }
+            }
+        }
+        
+        private IEnumerable<T> TravelPostorder(int inputVersion)
+        {
+            CheckNullRoot();
+
+            int travelVersion = inputVersion;
 
             return TravelPostorder(root);
 
@@ -215,6 +258,8 @@ namespace BinarySearchTreeLogic
                 {
                     foreach (var item in TravelPostorder(node.LeftChild))
                     {
+                        CheckTreeVersion(travelVersion);
+
                         yield return item;
                     }
                 }
@@ -223,13 +268,18 @@ namespace BinarySearchTreeLogic
                 {
                     foreach (var item in TravelPostorder(node.RightChild))
                     {
+                        CheckTreeVersion(travelVersion);
+
                         yield return item;
                     }
                 }
 
+                CheckTreeVersion(travelVersion);
+
                 yield return node.Value;
             }
         }
+
         #endregion Travels
 
         /// <summary>
@@ -238,14 +288,14 @@ namespace BinarySearchTreeLogic
         /// <returns>
         /// Iterator of binary tree.
         /// </returns>
-        public IEnumerator<T> GetEnumerator() => TravelInorder().GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => TravelInorder(version).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
 
         // TODO ASK
-        // private IEnumerable<T> GenericTravel(Node<T> node, Func<Node<T>, Node<T>> child, Func<Node<T>, IEnumerable<T>> travelMethod)
-        // {
+        //private IEnumerable<T> GenericTravel(Node<T> node, Func<Node<T>, Node<T>> child, Func<Node<T>, IEnumerable<T>> travelMethod)
+        //{
         //    if (child(node) != null)
         //    {
         //        foreach (var item in travelMethod(child(node)))
@@ -253,7 +303,7 @@ namespace BinarySearchTreeLogic
         //            yield return item;
         //        }
         //    }
-        // }
+        //}
 
         private Node<T> AddCore(Node<T> node, T item)
         {            
@@ -279,6 +329,7 @@ namespace BinarySearchTreeLogic
         private bool ContainsCore(Node<T> node, T item)
         {
             Node<T> current = node;
+
             while (comparer.Compare(current.Value, item) != 0)
             {
                 if (ReferenceEquals(current, null))
@@ -296,7 +347,7 @@ namespace BinarySearchTreeLogic
                 }
             }
 
-            return EqualityComparer<T>.Default.Equals(current.Value, item);
+            return comparer.Compare(current.Value, item) == 0;
         }
 
         private void InitializeWithCollection(IEnumerable<T> collection)
@@ -314,6 +365,14 @@ namespace BinarySearchTreeLogic
             if (ReferenceEquals(root, null))
             {
                 throw new ArgumentNullException($"The {nameof(root)} is null. Tree is empty.");
+            }
+        }
+
+        private void CheckTreeVersion(int travelVersion)
+        {
+            if (travelVersion != version)
+            {
+                throw new ArgumentException("Tree was changed");
             }
         }
     }
